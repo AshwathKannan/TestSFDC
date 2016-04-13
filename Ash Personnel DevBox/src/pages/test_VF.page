@@ -1,0 +1,9 @@
+<apex:page controller="Test_Cont">
+<Apex:form >
+  <!-- Begin Default Content REMOVE THIS -->
+  <h1>Congratulations</h1>
+  This is your new Page: test_VF
+  <apex:inputField value="{!so.User_Lookup__c}"/>
+  <!-- End Default Content REMOVE THIS -->
+  </Apex:form>
+</apex:page>

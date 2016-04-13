@@ -1,0 +1,127 @@
+<apex:page sidebar="false" controller="CC_Approval.ShowProcessController" id="pg" >
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"> </script>
+<apex:sectionHeader title="Approval Process" subtitle="Overall Status"/>
+    <script>
+       window.onload = function(){
+           $('input[type=text]').blur();
+           $('[id$=objectLst]').focus();
+       };
+    </script>
+
+    <apex:form id="frm">  
+    <apex:pageMessages ></apex:pageMessages>  
+            <table width="100%" class="list" >
+                <tr class="dataRow">    
+                    <th class="headerRow"> Type </th>
+                    <td class="dataCell"> <apex:selectList value="{!selType}" size="1" id="objectLst" styleclass="selType" >
+                 <apex:selectOptions value="{!lstType}"></apex:selectOptions>
+             </apex:selectList>
+                 </td>  
+                 <th class="headerRow"> Overall Status</th>
+                 <td class="dataCell"> <apex:selectList value="{!selStatus}" size="1" >
+                         <apex:selectOptions value="{!lstStatus }"></apex:selectOptions>
+                      </apex:selectList>
+                 </td>
+                 </tr>
+                 <tr>
+                 <th class="headerRow">Submitted Date From </th>
+                 <td class="dataCell"><apex:inputField value="{!con.birthdate}" /></td>
+                 
+                 <th class="headerRow">Submitted Date To </th>
+                 <td class="dataCell"><apex:inputField value="{!con1.birthdate}" /></td>
+               </tr>
+               <tr class="headerRow">
+                <td class="dataCell" colspan="4" align="center"><apex:commandButton value="Search" action="{!searchResult}" status="stat" />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <apex:commandButton value="Cancel" action="{!cancelAction}" status="stat" /></td>
+                 </tr>
+            </table>
+            <br/>
+            <apex:actionStatus id="stat" startText="Loading.......Please Wait.........."></apex:actionStatus>
+            
+            
+            <!-- <apex:outputPanel rendered="{!isSearchClicked}"> -->
+            
+            <apex:pageBlock >
+          
+            <apex:outputPanel rendered="{!if(modelList.size <= 0,true,false)}">
+                <apex:outputLabel value="No Record found for this criteria...........!!!!!!!!" style="font-size:16pt;color:red;font-weight:700;"></apex:outputLabel>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!if(modelList.size > 0,true,false)}">
+             <table width="100%" class="list" >
+                 <tr class="headerRow">
+                     <th class="headerRow"> 
+                         <apex:commandLink value="Type {!if(orderField =='TargetObjectId' || orderField =='TargetObjectId desc',if(isAsc == false,'▼','▲'),'')}" action="{!Ordering}" > 
+                             <apex:param name="p1" assignTo="{!orderField}" value="TargetObjectId"/>
+                         </apex:commandLink>
+                     </th>
+                     <th class="headerRow">
+                         <apex:commandLink value="Assign To {!if(orderField =='CreatedById' || orderField =='CreatedById desc',if(isAsc == false,'▼','▲'),'')}" action="{!Ordering}" >
+                             <apex:param name="p1" assignTo="{!orderField}" value="CreatedById"/>
+                         </apex:commandLink>
+                     </th>
+                     <th class="headerRow">
+                          <apex:commandLink value="Record Name {!if(orderField =='TargetObjectId' || orderField =='TargetObjectId desc',if(isAsc == false,'▼','▲'),'')}"  action="{!Ordering}" >
+                              <apex:param name="p1" assignTo="{!orderField}" value="TargetObjectId"/>
+                          </apex:commandLink>
+                     </th>
+                     <th class="headerRow">
+                         <apex:commandLink value="Overall Status {!if(orderField =='Status' || orderField =='Status desc' ,if(isAsc == false,'▼','▲'),'')}" action="{!Ordering}"> 
+                             <apex:param name="p1" assignTo="{!orderField}" value="Status"/>
+                         </apex:commandLink>
+                     </th>
+                     <th class="headerRow">
+                         <apex:commandLink value="Submitted Date  {!if(orderField == 'Createddate' || orderField =='Createddate desc',if(isAsc == false,'▼','▲'),'')}" action="{!Ordering}">
+                             <apex:param name="p1" assignTo="{!orderField}" value="Createddate"/>
+                         </apex:commandLink>
+                     </th>
+                     <td class="headerRow" align="center" style="font-size:11pt;font-weight:700;"> Approval History </td>
+                 </tr>
+                 <apex:variable value="{!1}" var="ct"/>
+                 <apex:repeat value="{!tempModelList}" var="m">
+                     <tr class="dataRow">
+                         <td class="dataCell"><apex:outputLabel value="{!m.typename}"></apex:outputLabel></td>
+                         <td class="dataCell" ><apex:outputField value="{!m.process.CreatedById}"/></td>
+                         <td class="dataCell"><apex:outputField value="{!m.process.TargetObjectId}"/></td>
+                         <td class="dataCell"><apex:outputField value="{!m.process.Status}"/></td>
+                         <td class="dataCell"><apex:outputField value="{!m.process.Createddate}"/></td>
+                         <td>
+                             <table width="100%" rules="all"  border="0" class="list">
+                                 <apex:outputPanel rendered="{!if(ct == 1, true, false)}">
+                                 <tr class="headerRow">
+                                     <th class="headerRow"> Date </th>
+                                     <th class="headerRow"> Status </th>
+                                     <th class="headerRow"> Assign To </th>
+                                     <th class="headerRow"> Actual Approvals </th>
+                                 </tr>
+                                 </apex:outputPanel>
+                                <apex:repeat value="{!m.process.StepsAndWorkitems}" var="st">
+                                    <tr class="dataRow">
+                                        <td class="dataCell" width="100px"><apex:outputField value="{!st.SystemModStamp}"/>  </td>
+                                        <td class="dataCell" width="80px"><apex:outputField value="{!st.StepStatus}"/> </td>
+                                        <td class="dataCell" width="100px"><apex:outputField value="{!st.OriginalActorId}"/> </td>
+                                        <td class="dataCell" width="100px"><apex:outputField value="{!st.ActorId}"/></td>
+                                    </tr>
+                                </apex:repeat>      
+                             </table>
+                         </td>
+                     </tr>
+                     <apex:variable var="ct" value="{!ct+1}"/>
+                 </apex:repeat>
+             </table>
+             <br/><br/><hr/>
+             Showing Page &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {!pageNumber} of &nbsp;&nbsp;&nbsp;&nbsp; {!totalPages}  &nbsp;&nbsp;&nbsp;&nbsp;
+             <apex:commandLink value="First" action="{!first}" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:commandLink value="Previous" action="{!previous}" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:commandLink value="Next" action="{!PNext}" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:commandLink value="Last" action="{!last}" />
+            
+            <br/><hr/>
+            </apex:outputPanel>
+             </apex:pageBlock>
+            <!-- </apex:outputPanel> -->
+    </apex:form> 
+    
+    
+
+</apex:page>
